@@ -72,17 +72,23 @@ min_element([H|T], CurrentMin, Min) :-
 
 % Main predicate secondMin/2 to find the second minimum unique element.
 secondMin(List, Min2) :-
+
     % Ensure all elements are numbers.
     maplist(check_number, List),
+
     % Remove duplicates.
     remove_duplicates(List, UniqueList),
+
     % Check if there are at least two unique elements.
     length(UniqueList, Length),
     Length >= 2, !,
+
     % Find the first minimum.
     min_element(UniqueList, Min1),
+
     % Remove the first minimum from the list.
     delete(UniqueList, Min1, RemainingList),
+    
     % Find the second minimum in the remaining list.
     min_element(RemainingList, Min2).
 
@@ -304,18 +310,95 @@ check_even(Num, Result) :-
 
 % #9. Zebra Puzzle =========================================================================================
 
-b(Clothing, Country, Genre, Followers, Year).
+b(_, _, _, _, _).
 
-black(Band) :-
-    bands(Bs),
-    member(b(Band, )).
+black(Position) :-
+	solve(Bs),
+    nth0(Pos, Bs, b(black, _, _, _, _)),
+    Position is Pos + 1.
 
-bands(Bs)
+denmark(Position) :-
+	solve(Bs),
+    nth0(Pos, Bs, b(_, denmark, _, _, _)),
+    Position is Pos + 1.
+
+solve(Bs) :-
+    length(Bs, 5),
+
+    % Leftover characteristics that were never given a rule to be defined
+    member(b(orange, _, _, _, _), Bs),
+    member(b(_, _, hard_rock, _, _), Bs),
+    member(b(_, _, _, 200000, _), Bs),
+
+    % Rule 1
+    Bs =  [_, _, _, b(_, _, _, _, 2009), _],
+
+    % Rule 2
+    somewhere_right_of(b(_, _, _, 50000, _), b(black, _, _, _, _), Bs),  
+
+    % Rule 3
+    next_to(b(_, _, _, 150000, _), b(_, austria, _, _, _), Bs),        
+
+    % Rule 4
+    somewhere_between(b(_, _, _, 300000, _), b(_, _, _, _, 2008), b(_, _, _, 250000, _), Bs),
+
+    % Rule 5
+    somewhere_between(b(black, _, _, _, _), b(_, _, _, _, 2008), b(_, _, _, _, 2000), Bs),
+
+    % Rule 6
+    next_to(b(_, _, _, _, 2000), b(green, _, _, _, _), Bs),   
+
+    % Rule 7
+    left_of(b(_, austria, _, _, _), b(_, denmark, _, _, _), Bs),      
+
+    % Rule 8
+    somewhere_left_of(b(black, _, _, _, _), b(_, _, heavy_metal, _, _), Bs), 
+
+    % Rule 9
+    Bs =  [b(_, _, progressive, _, _), _, _, _, _],                       
+
+    % Rule 10
+    somewhere_between(b(_, _, _, 50000, _), b(yellow, _, _, _, _), b(_, _, _, 300000, _), Bs),
+
+    % Rule 11
+    left_of(b(_, slovakia, _, _, _), b(_, ireland, _, _, _), Bs),     
+
+    % Rule 12
+    somewhere_between(b(_, _, _, _, 2000), b(_, _, _, _, 2015), b(_, _, _, _, 2009), Bs),
+
+    % Rule 13
+    right_of(b(_, _, gothic, _, _), b(_, slovakia, _, _, _), Bs),     
+
+    % Rule 14
+    somewhere_between(b(_, _, _, _, 2009), b(yellow, _, _, _, _), b(_, _, _, _, 2005), Bs),
+
+    % Rule 15
+    somewhere_left_of(b(_, croatia, _, _, _), b(blue, _, _, _, _), Bs),             
+
+    % Rule 16
+    somewhere_left_of(b(blue, _, _, _, _), b(_, _, psychedelic, _, _), Bs).
 
 
+left_of(A, B, Ls) :-
+    append(_, [A,B|_], Ls).
 
+right_of(A, B, Ls) :- 
+    append(_, [B,A|_], Ls).
 
+somewhere_left_of(A, B, List) :-
+    append(Stuff, [B | _], List),
+    member(A, Stuff).
 
+somewhere_right_of(A, B, List) :-
+    append(Stuff, [A | _], List),
+    member(B, Stuff).
 
+next_to(A,B,C):-
+    left_of(A,B,C) ;
+    right_of(A,B,C).
+
+somewhere_between(A, B, C, List) :-
+    somewhere_right_of(A, B, List),
+    somewhere_left_of(A, C, List).
 
 % ==========================================================================================================
